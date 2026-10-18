@@ -59,20 +59,18 @@
             let nextTime = '';
 
             if (distance > 0) {
-                // 1. 통합 이전 카운트다운 (D-)
                 const days = Math.ceil(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60)) / (1000 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
                 nextDays = `D-${days}`;
                 nextTime = `${String(hours).padStart(2, '0')} : ${String(minutes).padStart(2, '0')} : ${String(seconds).padStart(2, '0')}`;
-            } else {
-                // 2. 통합 당일 및 이후 경과 시간 카운트업 (D-DAY, D+)
+            } else {              
                 const elapsed = Math.abs(distance);
                 const elapsedDays = Math.floor(elapsed / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((elapsed % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((elapsed % (1000 * 60)) / (1000 * 60));
+                const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
 
                 nextDays = elapsedDays === 0 ? 'D-DAY' : `D+${elapsedDays}`;
