@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026.12.17 00:00</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin
+        href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        body {
+            background-color: #000000;
+            color: #FFFFFF;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+        }
+    </style>
+</head>
+
+<body
+    class="bg-[#000000] text-[#FFFFFF] min-h-screen flex flex-col items-center justify-center p-6 select-none antialiased">
+
+    <main class="w-full max-w-3xl flex flex-col items-center text-center">
+
+        <div class="text-xl sm:text-3xl font-bold tracking-wider sm:tracking-widest mb-8 sm:mb-12 tabular-nums">
+            D-Day 2026.12.17 00:00:00
+        </div>
+        <div class="w-full pb-8 sm:pb-12">
+            <div id="days" class="text-7xl sm:text-9xl font-black tracking-tighter leading-none tabular-nums">
+                D-00
+            </div>
+        </div>
+        <div class="w-full border-t-2 border-[#FFFFFF]"></div>
+        <div class="w-full pt-8 sm:pt-12">
+            <div id="time" class="text-5xl sm:text-8xl font-black tracking-tight leading-none tabular-nums">
+                00 : 00 : 00
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const targetTime = new Date('2026-12-17T00:00:00+09:00').getTime();
+        const daysEl = document.getElementById('days');
+        const timeEl = document.getElementById('time');
+
+        function updateTimer() {
+            const now = Date.now();
+            const distance = targetTime - now;
+
+            let nextDays = '';
+            let nextTime = '';
+
+            if (distance > 0) {
+                // 1. 통합 이전 카운트다운 (D-)
+                const days = Math.ceil(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                nextDays = `D-${days}`;
+                nextTime = `${String(hours).padStart(2, '0')} : ${String(minutes).padStart(2, '0')} : ${String(seconds).padStart(2, '0')}`;
+            } else {
+                // 2. 통합 당일 및 이후 경과 시간 카운트업 (D-DAY, D+)
+                const elapsed = Math.abs(distance);
+                const elapsedDays = Math.floor(elapsed / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((elapsed % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((elapsed % (1000 * 60)) / (1000 * 60));
+                const seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
+
+                nextDays = elapsedDays === 0 ? 'D-DAY' : `D+${elapsedDays}`;
+                nextTime = `${String(hours).padStart(2, '0')} : ${String(minutes).padStart(2, '0')} : ${String(seconds).padStart(2, '0')}`;
+            }
+
+            if (daysEl.textContent !== nextDays) daysEl.textContent = nextDays;
+            if (timeEl.textContent !== nextTime) timeEl.textContent = nextTime;
+        }
+
+        updateTimer();
+        setInterval(updateTimer, 500);
+    </script>
+</body>
+
+</html>
