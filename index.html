@@ -5,45 +5,105 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026.12.17 00:00</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" as="style" crossorigin
         href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
         body {
             background-color: #000000;
             color: #FFFFFF;
             font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 1.5rem;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 48rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
         }
 
         .tabular-nums {
             font-variant-numeric: tabular-nums;
             font-feature-settings: "tnum";
         }
+
+        .target-title {
+            font-size: clamp(1.125rem, 4vw, 1.875rem);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin-bottom: clamp(2rem, 5vw, 3rem);
+            white-space: nowrap;
+        }
+
+        .days-wrapper {
+            width: 100%;
+            padding-bottom: clamp(2rem, 5vw, 3rem);
+        }
+
+        .days-text {
+            font-size: clamp(4.25rem, 18vw, 8rem);
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .divider {
+            width: 100%;
+            border-top: 2px solid #FFFFFF;
+        }
+
+        .time-wrapper {
+            width: 100%;
+            padding-top: clamp(2rem, 5vw, 3rem);
+        }
+
+        .time-text {
+            font-size: clamp(2.25rem, 11vw, 6rem);
+            font-weight: 900;
+            letter-spacing: -0.025em;
+            line-height: 1;
+            white-space: nowrap;
+        }
     </style>
 </head>
 
-<body
-    class="bg-[#000000] text-[#FFFFFF] min-h-screen flex flex-col items-center justify-center p-6 select-none antialiased">
+<body>
 
-    <main class="w-full max-w-3xl flex flex-col items-center text-center">
-
-        <div class="text-xl sm:text-3xl font-bold tracking-wider sm:tracking-widest mb-8 sm:mb-12 tabular-nums">
+    <main class="container">
+        <div class="target-title tabular-nums">
             D-Day 2026.12.17 00:00:00
         </div>
-        <div class="w-full pb-8 sm:pb-12">
-            <div id="days" class="text-7xl sm:text-9xl font-black tracking-tighter leading-none tabular-nums">
+        <div class="days-wrapper">
+            <div id="days" class="days-text tabular-nums">
                 D-00
             </div>
         </div>
-        <div class="w-full border-t-2 border-[#FFFFFF]"></div>
-        <div class="w-full pt-8 sm:pt-12">
-            <div id="time" class="text-5xl sm:text-8xl font-black tracking-tight leading-none tabular-nums">
+        <div class="divider"></div>
+        <div class="time-wrapper">
+            <div id="time" class="time-text tabular-nums">
                 00 : 00 : 00
             </div>
         </div>
-
     </main>
 
     <script>
@@ -51,27 +111,46 @@
         const daysEl = document.getElementById('days');
         const timeEl = document.getElementById('time');
 
+        let timeOffset = 0;
+
+        async function syncServerTime() {
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'HEAD',
+                    cache: 'no-store'
+                });
+                const serverDateStr = response.headers.get('Date');
+                if (serverDateStr) {
+                    const serverTime = new Date(serverDateStr).getTime();
+                    timeOffset = serverTime - Date.now();
+                    updateTimer();
+                }
+            } catch (e) {
+            }
+        }
+
         function updateTimer() {
-            const now = Date.now();
+            const now = Date.now() + timeOffset;
             const distance = targetTime - now;
 
             let nextDays = '';
             let nextTime = '';
 
             if (distance > 0) {
-                const days = Math.ceil(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                const totalSeconds = Math.ceil(distance / 1000);
+                const days = Math.floor(totalSeconds / (3600 * 24));
+                const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
 
                 nextDays = `D-${days}`;
                 nextTime = `${String(hours).padStart(2, '0')} : ${String(minutes).padStart(2, '0')} : ${String(seconds).padStart(2, '0')}`;
-            } else {              
-                const elapsed = Math.abs(distance);
-                const elapsedDays = Math.floor(elapsed / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((elapsed % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((elapsed % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((elapsed % (1000 * 60)) / 1000);
+            } else {
+                const elapsedSeconds = Math.floor(Math.abs(distance) / 1000);
+                const elapsedDays = Math.floor(elapsedSeconds / (3600 * 24));
+                const hours = Math.floor((elapsedSeconds % (3600 * 24)) / 3600);
+                const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+                const seconds = elapsedSeconds % 60;
 
                 nextDays = elapsedDays === 0 ? 'D-DAY' : `D+${elapsedDays}`;
                 nextTime = `${String(hours).padStart(2, '0')} : ${String(minutes).padStart(2, '0')} : ${String(seconds).padStart(2, '0')}`;
@@ -82,7 +161,14 @@
         }
 
         updateTimer();
-        setInterval(updateTimer, 500);
+        syncServerTime();
+        setInterval(updateTimer, 200);
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                updateTimer();
+            }
+        });
     </script>
 </body>
 
